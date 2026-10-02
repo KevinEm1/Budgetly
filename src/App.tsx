@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import './App.css'
 
 type Transaction = {
@@ -36,8 +36,25 @@ function formatCurrency(amount: number) {
 }
 
 function App() {
-  const [transactions, setTransactions] = useState(startingTransactions)
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const savedTransactions = localStorage.getItem('budgetly-transactions')
+    
+  if (!savedTransactions) {
+    return startingTransactions
+  }
+
+  try {
+    return JSON.parse(savedTransactions) as Transaction[]
+  } catch {
+    return startingTransactions
+  }
+  })
+
   const [showForm, setShownForm] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('budgetly-transactions', JSON.stringify(transactions))
+  }, [transactions])
 
   const currentMonth = new Date().toISOString().slice(0, 7)
 
