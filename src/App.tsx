@@ -74,6 +74,18 @@ const monthlyExpenses = thisMonthTransactions
   .filter((transaction) => transaction.type === 'expense')
   .reduce((total, transaction) => total + transaction.amount, 0)
 
+function handleDelete(id: number, desctription: string) {
+  const shouldDelete = window.confirm(`Delete "${desctription}"?`)
+
+  if (!shouldDelete) {
+    return
+  }
+
+  setTransactions((currentTransactions) =>
+    currentTransactions.filter((transaction) => transaction.id !== id),
+  )
+}
+
 function handleSubmit(event: FormEvent<HTMLFormElement>) {
   event.preventDefault()
   const form = event.currentTarget
@@ -183,12 +195,30 @@ return (
     <section className="content-card">
       <h2>Recent transactions</h2>
 
+    <div className="transactions-list">
       {transactions.map((transaction) => (
-        <p key={transaction.id}>
-          {transaction.description} - {transaction.type === 'income' ? '+' : '-'}
-          {formatCurrency(transaction.amount)} on {transaction.date}
-        </p>
+        <div className="transaction-row" key={transaction.id}>
+          <div className="transaction-info">
+            <strong>{transaction.description}</strong>
+            <span>{transaction.date}</span>
+          </div>
+
+          <span className={'transaction-amount ${transaction.type}'}>
+            {transaction.type === 'income' ? '+' : '-'}
+            {formatCurrency(transaction.amount)}
+          </span>
+
+          <button
+            className="delete-button"
+            type="button"
+            onClick={() => handleDelete(transaction.id, transaction.description)}
+            aria-label={'Delete ${transaction.description}'}
+          >
+              Delete
+            </button>
+        </div>
       ))}
+    </div>
     </section>
   </main>
       )
