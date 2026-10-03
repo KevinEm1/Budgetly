@@ -52,6 +52,10 @@ function App() {
 
   const [showForm, setShownForm] = useState(false)
 
+  const [transactionFilter, setTransactionFilter] = useState<
+    'all' | 'income' | 'expense'
+  >('all')
+
   useEffect(() => {
     localStorage.setItem('budgetly-transactions', JSON.stringify(transactions))
   }, [transactions])
@@ -100,7 +104,6 @@ function handleSubmit(event: FormEvent<HTMLFormElement>) {
   }
 
   setTransactions((currentTransactions) => [
-    ...currentTransactions,
     {
       id: Date.now(),
       description,
@@ -114,6 +117,10 @@ function handleSubmit(event: FormEvent<HTMLFormElement>) {
   form.reset()
   setShownForm(false)
 }
+
+const visibleTransactions = transactions.filter((transaction) => 
+  transactionFilter === 'all' || transaction.type === transactionFilter
+)
 
 return (
   <main className="app">
@@ -195,15 +202,41 @@ return (
     <section className="content-card">
       <h2>Recent transactions</h2>
 
+<div className="filter-buttons">
+  <button
+    type="button"
+    className={transactionFilter === 'all' ? 'filter-button active' : 'filter-button'}
+    onClick={() => setTransactionFilter('all')}
+  >
+    All
+  </button>
+
+  <button
+    type="button"
+    className={transactionFilter === 'income' ? 'filter-button active' : 'filter-button'}
+    onClick={() => setTransactionFilter('income')}
+  >
+    Income
+  </button>
+
+  <button
+    type="button"
+    className={transactionFilter === 'expense' ? 'filter-button active' : 'filter-button'}
+    onClick={() => setTransactionFilter('expense')}
+  >
+    Expenses
+  </button>
+</div>
+
     <div className="transactions-list">
-      {transactions.map((transaction) => (
+      {visibleTransactions.map((transaction) => (
         <div className="transaction-row" key={transaction.id}>
           <div className="transaction-info">
             <strong>{transaction.description}</strong>
             <span>{transaction.date}</span>
           </div>
 
-          <span className={'transaction-amount ${transaction.type}'}>
+          <span className={`transaction-amount ${transaction.type}`}>
             {transaction.type === 'income' ? '+' : '-'}
             {formatCurrency(transaction.amount)}
           </span>
@@ -212,7 +245,7 @@ return (
             className="delete-button"
             type="button"
             onClick={() => handleDelete(transaction.id, transaction.description)}
-            aria-label={'Delete ${transaction.description}'}
+            aria-label={`Delete ${transaction.description}`}
           >
               Delete
             </button>
