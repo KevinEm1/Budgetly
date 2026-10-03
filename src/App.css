@@ -130,3 +130,37 @@ h1 {
   border-color: #2563eb;
 }
 
+.edit-button {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.edit-button:hover {
+  background: #c7d2fe;
+}
+
+.delete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.delete-button:hover {
+  background: #fecaca;
+}
+
+.transaction-amount {
+  margin-right: 16px;
+}

@@ -52,6 +52,8 @@ function App() {
 
   const [showForm, setShownForm] = useState(false)
 
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
+
   const [transactionFilter, setTransactionFilter] = useState<
     'all' | 'income' | 'expense'
   >('all')
@@ -90,6 +92,11 @@ function handleDelete(id: number, desctription: string) {
   )
 }
 
+function handleEdit(transaction: Transaction) {
+  setEditingTransaction(transaction)
+  setShownForm(true)
+}
+
 function handleSubmit(event: FormEvent<HTMLFormElement>) {
   event.preventDefault()
   const form = event.currentTarget
@@ -103,16 +110,34 @@ function handleSubmit(event: FormEvent<HTMLFormElement>) {
     return
   }
 
+  if (editingTransaction) {
+  setTransactions((currentTransactions) =>
+    currentTransactions.map((transaction) =>
+      transaction.id === editingTransaction.id
+        ? {
+            ...transaction,
+            description,
+            amount,
+            type,
+            date,
+          }
+        : transaction,
+    ),
+  )
+
+  setEditingTransaction(null)
+} else {
   setTransactions((currentTransactions) => [
     {
       id: Date.now(),
       description,
       amount,
       type,
-      date
+      date,
     },
     ...currentTransactions,
   ])
+}
 
   form.reset()
   setShownForm(false)
@@ -130,21 +155,32 @@ return (
         <h1>Budgetly</h1>
       </div>
 
-      <button className="add-button" onClick={() => setShownForm(!showForm)}>
+      <button
+        className="add-button"
+        onClick={() => {
+          setShownForm(!showForm)
+          setEditingTransaction(null)
+        }}
+      >
         {showForm ? 'Cancel' : 'Add Transaction'}
       </button>
     </header>
     
     {showForm && (
       <section className="content-card">
-        <h2>New Transaction</h2>
+        <h2>{editingTransaction ? 'Edit Transaction' : 'New Transaction'}</h2>
       
         <form onSubmit={handleSubmit}>
           <p>
             <label>
               Description
               <br />
-              <input name="description" required placeholder="e.g. Groceries" />
+              <input 
+                name="description" 
+                required 
+                placeholder="e.g. Groceries" 
+                defaultValue={editingTransaction?.description ?? ''} 
+              />
             </label>
           </p>
           
@@ -152,7 +188,14 @@ return (
             <label>
               Amount
               <br />
-              <input name="amount" type="number" min="0.01" step="0.01" required />
+              <input 
+                name="amount" 
+                type="number" 
+                min="0.01" 
+                step="0.01" 
+                required 
+                defaultValue={editingTransaction?.amount ?? ''} 
+              />
             </label>
           </p>
 
@@ -160,7 +203,7 @@ return (
             <label>
               Type
               <br />
-              <select name="type" defaultValue="expense">
+              <select name="type" defaultValue={editingTransaction?.type ?? 'expense'}>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
               </select>
@@ -171,12 +214,12 @@ return (
             <label>
               Date
               <br />
-              <input name="date" type="date" defaultValue={today} required />
+              <input name="date" type="date" defaultValue={editingTransaction?.date ?? today} required />
             </label>
           </p>
 
           <button className="add-button" type="submit">
-            Save Transaction
+            {editingTransaction ? 'Update Transaction' : 'Save Transaction'}
           </button>
         </form>
       </section>
@@ -240,6 +283,14 @@ return (
             {transaction.type === 'income' ? '+' : '-'}
             {formatCurrency(transaction.amount)}
           </span>
+
+          <button
+            className="edit-button"
+            type="button"
+            onClick={() => handleEdit(transaction)}
+          >
+            Edit
+          </button>
 
           <button
             className="delete-button"
