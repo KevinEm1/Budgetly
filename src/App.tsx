@@ -50,6 +50,8 @@ function App() {
   }
   })
 
+  const [searchTerm, setSearchTerm] = useState('')
+
   const [showForm, setShownForm] = useState(false)
 
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
@@ -145,6 +147,12 @@ function handleSubmit(event: FormEvent<HTMLFormElement>) {
 
 const visibleTransactions = transactions.filter((transaction) => 
   transactionFilter === 'all' || transaction.type === transactionFilter
+)
+
+const searchedTransactions = visibleTransactions.filter((transaction) =>
+  transaction.description
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase().trim())
 )
 
 return (
@@ -271,8 +279,23 @@ return (
   </button>
 </div>
 
+<div className="search-container">
+  <input
+    type="text"
+    placeholder="Search transactions..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
+
+{searchedTransactions.length === 0 && (
+  <p className="no-transactions">
+    No transactions found.
+  </p>
+)}
+
     <div className="transactions-list">
-      {visibleTransactions.map((transaction) => (
+      {searchedTransactions.map((transaction) => (
         <div className="transaction-row" key={transaction.id}>
           <div className="transaction-info">
             <strong>{transaction.description}</strong>
@@ -284,6 +307,7 @@ return (
             {formatCurrency(transaction.amount)}
           </span>
 
+        <div className="transaction-actions">
           <button
             className="edit-button"
             type="button"
@@ -300,6 +324,7 @@ return (
           >
               Delete
             </button>
+          </div>
         </div>
       ))}
     </div>
