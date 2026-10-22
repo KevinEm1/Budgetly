@@ -232,3 +232,25 @@ h1 {
   font-size: 16px;
   margin: 20px 0;
 }
+
+.expense-chart {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  margin: 24px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.expense-chart h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #1f2937;
+}
+
+.expense-chart p {
+  text-align: center;
+  color: #6b7280;
+  padding: 20px;
+}

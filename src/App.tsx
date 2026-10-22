@@ -1,11 +1,20 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import './App.css'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 
 type Transaction = {
   id: number
   description: string
   amount: number
   type: 'income' | 'expense'
+  category?: string
   date: string
 }
 
@@ -35,6 +44,16 @@ function formatCurrency(amount: number) {
   }).format(amount)
 }
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Housing: '#6366f1',
+  Food: '#22c55e',
+  Transportation: '#f59e0b',
+  Entertainment: '#ef4444',
+  Shopping: '#06b6d4',
+  Utilities: '#a855f7',
+  Other: '#ec4899',
+}
+
 function App() {
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     const savedTransactions = localStorage.getItem('budgetly-transactions')
@@ -59,6 +78,8 @@ function App() {
   const [transactionFilter, setTransactionFilter] = useState<
     'all' | 'income' | 'expense'
   >('all')
+
+  const [category, setCategory] = useState('Other')
 
   useEffect(() => {
     localStorage.setItem('budgetly-transactions', JSON.stringify(transactions))
@@ -97,6 +118,7 @@ function handleDelete(id: number, desctription: string) {
 function handleEdit(transaction: Transaction) {
   setEditingTransaction(transaction)
   setShownForm(true)
+  setCategory(transaction.category ?? 'Other')
 }
 
 function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -122,6 +144,7 @@ function handleSubmit(event: FormEvent<HTMLFormElement>) {
             amount,
             type,
             date,
+            category,
           }
         : transaction,
     ),
@@ -136,13 +159,15 @@ function handleSubmit(event: FormEvent<HTMLFormElement>) {
       amount,
       type,
       date,
+      category,
     },
     ...currentTransactions,
   ])
 }
 
   form.reset()
-  setShownForm(false)
+setCategory('Other')
+setShownForm(false)
 }
 
 const visibleTransactions = transactions.filter((transaction) => 
@@ -153,6 +178,23 @@ const searchedTransactions = visibleTransactions.filter((transaction) =>
   transaction.description
     .toLowerCase()
     .includes(searchTerm.toLowerCase().trim())
+)
+
+const expensesByCategory = transactions
+  .filter((transaction) => transaction.type === 'expense')
+  .reduce<Record<string, number>>((totals, transaction) => {
+    const category = transaction.category ?? 'Other'
+
+    totals[category] = (totals[category] ?? 0) + transaction.amount
+
+    return totals
+  }, {})
+
+const chartData = Object.entries(expensesByCategory).map(
+  ([name, value]) => ({
+    name,
+    value,
+  })
 )
 
 return (
@@ -218,6 +260,19 @@ return (
             </label>
           </p>
 
+          <select
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+>
+  <option value="Housing">Housing</option>
+  <option value="Food">Food</option>
+  <option value="Transportation">Transportation</option>
+  <option value="Entertainment">Entertainment</option>
+  <option value="Shopping">Shopping</option>
+  <option value="Utilities">Utilities</option>
+  <option value="Other">Other</option>
+</select>
+
           <p>
             <label>
               Date
@@ -249,6 +304,44 @@ return (
         <h2>{formatCurrency(monthlyExpenses)}</h2>
       </article>
     </section>
+
+    <section className="expense-chart">
+  <h2>Expenses by Category</h2>
+
+  {chartData.length > 0 ? (
+    <ResponsiveContainer width="100%" height={300}>
+      <PieChart>
+        <Pie
+          data={chartData}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={100}
+          label
+        >
+          {chartData.map((entry) => (
+  <Cell
+    key={entry.name}
+    fill={CATEGORY_COLORS[entry.name] ?? CATEGORY_COLORS.Other}
+  />
+))}
+        </Pie>
+        <Tooltip
+  formatter={(value) =>
+    Number(value).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    })
+  }
+/>
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
+  ) : (
+    <p>No expenses to display yet.</p>
+  )}
+</section>
 
     <section className="content-card">
       <h2>Recent transactions</h2>
