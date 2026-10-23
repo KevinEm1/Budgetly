@@ -81,14 +81,19 @@ function App() {
 
   const [category, setCategory] = useState('Other')
 
+  const [selectedMonth, setSelectedMonth] = useState(
+  new Date().toLocaleDateString('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+  }).replace('/', '-')
+)
+
   useEffect(() => {
     localStorage.setItem('budgetly-transactions', JSON.stringify(transactions))
   }, [transactions])
 
-  const currentMonth = new Date().toISOString().slice(0, 7)
-
-  const thisMonthTransactions = transactions.filter((transaction) => 
-    transaction.date.startsWith(currentMonth),
+  const thisMonthTransactions = transactions.filter((transaction) =>
+  transaction.date.startsWith(selectedMonth)
 )
 
 const totalBalance = transactions.reduce((total, transaction) => {
@@ -170,7 +175,7 @@ setCategory('Other')
 setShownForm(false)
 }
 
-const visibleTransactions = transactions.filter((transaction) => 
+const visibleTransactions = thisMonthTransactions.filter((transaction) =>
   transactionFilter === 'all' || transaction.type === transactionFilter
 )
 
@@ -180,7 +185,7 @@ const searchedTransactions = visibleTransactions.filter((transaction) =>
     .includes(searchTerm.toLowerCase().trim())
 )
 
-const expensesByCategory = transactions
+const expensesByCategory = thisMonthTransactions
   .filter((transaction) => transaction.type === 'expense')
   .reduce<Record<string, number>>((totals, transaction) => {
     const category = transaction.category ?? 'Other'
@@ -287,6 +292,16 @@ return (
         </form>
       </section>
     )}
+
+    <div className="month-filter">
+  <label htmlFor="month">Select Month:</label>
+  <input
+    id="month"
+    type="month"
+    value={selectedMonth}
+    onChange={(e) => setSelectedMonth(e.target.value)}
+  />
+</div>
 
     <section className="summary-grid">
       <article className="summary-card">

@@ -254,3 +254,33 @@ h1 {
   color: #6b7280;
   padding: 20px;
 }
+
+.month-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.month-filter label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.month-filter input {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #fff;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+.month-filter input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
