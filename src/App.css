@@ -93,13 +93,16 @@ h1 {
 @media (max-width: 700px) {
   .topbar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+    gap: 30px;
   }
+}
 
   .summary-grid {
     grid-template-columns: 1fr;
   }
-}
+
 
 .filter-buttons {
   display: flex;
@@ -351,4 +354,31 @@ h1 {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+@media (max-width: 600px) {
+  .budget-goal,
+  .budget-progress {
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  .budget-goal h2,
+  .budget-progress h3 {
+    font-size: 18px;
+  }
+
+  .month-filter {
+    gap: 8px;
+    margin: 16px 0;
+  }
+
+  .transactions-list {
+  margin-top: 12px;
+}
+
+.transaction-row {
+  padding: 14px 10px;
+  gap: 10px;
+}
 }
