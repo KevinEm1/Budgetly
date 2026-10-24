@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import './App.css'
 import {
   PieChart,
@@ -80,6 +80,8 @@ function App() {
   >('all')
 
   const [category, setCategory] = useState('Other')
+
+  const formRef = useRef<HTMLDivElement>(null)
 
   const [selectedMonth, setSelectedMonth] = useState(
   new Date().toLocaleDateString('en-CA', {
@@ -234,6 +236,15 @@ const chartData = Object.entries(expensesByCategory).map(
   })
 )
 
+useLayoutEffect(() => {
+  if (editingTransaction && showForm) {
+    formRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
+}, [editingTransaction, showForm])
+
 return (
   <main className="app">
     <header className="topbar">
@@ -254,7 +265,7 @@ return (
     </header>
     
     {showForm && (
-      <section className="content-card">
+      <section className="content-card" ref={formRef}>
         <h2>{editingTransaction ? 'Edit Transaction' : 'New Transaction'}</h2>
       
         <form onSubmit={handleSubmit}>
