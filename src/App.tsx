@@ -88,9 +88,32 @@ function App() {
   }).replace('/', '-')
 )
 
+  const [monthlyBudgets, setMonthlyBudgets] = useState<Record<string, number>>(
+  () => {
+    const savedBudgets = localStorage.getItem('budgetly-monthly-budgets')
+
+    if (savedBudgets) {
+      try {
+        return JSON.parse(savedBudgets) as Record<string, number>
+      } catch {
+        return {}
+      }
+    }
+
+    return {}
+  }
+)
+
   useEffect(() => {
     localStorage.setItem('budgetly-transactions', JSON.stringify(transactions))
   }, [transactions])
+
+  useEffect(() => {
+  localStorage.setItem(
+    'budgetly-monthly-budgets',
+    JSON.stringify(monthlyBudgets)
+  )
+}, [monthlyBudgets])
 
   const thisMonthTransactions = transactions.filter((transaction) =>
   transaction.date.startsWith(selectedMonth)
@@ -107,6 +130,15 @@ const monthlyIncome = thisMonthTransactions
 const monthlyExpenses = thisMonthTransactions
   .filter((transaction) => transaction.type === 'expense')
   .reduce((total, transaction) => total + transaction.amount, 0)
+
+const currentBudget = monthlyBudgets[selectedMonth] ?? 0
+
+const remainingBudget = currentBudget - monthlyExpenses
+
+const budgetPercentage =
+  currentBudget > 0
+    ? (monthlyExpenses / currentBudget) * 100
+    : 0
 
 function handleDelete(id: number, desctription: string) {
   const shouldDelete = window.confirm(`Delete "${desctription}"?`)
@@ -301,6 +333,70 @@ return (
     value={selectedMonth}
     onChange={(e) => setSelectedMonth(e.target.value)}
   />
+</div>
+
+<div className="budget-goal">
+  <h2>Monthly Budget Goal</h2>
+
+  <label htmlFor="budgetAmount">
+    Set Spending Limit:
+  </label>
+
+  <input
+    id="budgetAmount"
+    type="number"
+    min="0"
+    step="0.01"
+    placeholder="Enter monthly budget"
+    value={monthlyBudgets[selectedMonth] ?? ''}
+    onChange={(e) => {
+      const value = e.target.value
+
+      setMonthlyBudgets((previous) => {
+        const updated = { ...previous }
+
+        if (value === '') {
+          delete updated[selectedMonth]
+        } else {
+          updated[selectedMonth] = Number(value)
+        }
+
+        return updated
+      })
+    }}
+  />
+</div>
+
+<div className="budget-progress">
+  <h3>Monthly Budget Progress</h3>
+
+  {currentBudget > 0 ? (
+    <>
+      <p>
+        {formatCurrency(monthlyExpenses)} spent of{' '}
+        {formatCurrency(currentBudget)}
+      </p>
+
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{
+            width: `${Math.min(budgetPercentage, 100)}%`,
+            backgroundColor:
+              budgetPercentage >= 100 ? '#ef4444' : '#6366f1',
+          }}
+        />
+      </div>
+
+      <p>
+        {remainingBudget >= 0
+          ? `${formatCurrency(remainingBudget)} remaining`
+          : `${formatCurrency(Math.abs(remainingBudget))} over budget`}
+      </p>
+    </>
+  ) : (
+    <p>Set a monthly budget to track your spending.</p>
+  )}
 </div>
 
     <section className="summary-grid">
