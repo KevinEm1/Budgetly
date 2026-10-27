@@ -142,6 +142,15 @@ const budgetPercentage =
     ? (monthlyExpenses / currentBudget) * 100
     : 0
 
+const budgetStatus =
+  currentBudget <= 0
+    ? 'not-set'
+    : budgetPercentage >= 100
+      ? 'exceeded'
+      : budgetPercentage >= 80
+        ? 'warning'
+        : 'safe'
+
 function handleDelete(id: number, desctription: string) {
   const shouldDelete = window.confirm(`Delete "${desctription}"?`)
 
@@ -394,10 +403,27 @@ return (
           style={{
             width: `${Math.min(budgetPercentage, 100)}%`,
             backgroundColor:
-              budgetPercentage >= 100 ? '#ef4444' : '#6366f1',
+  budgetStatus === 'exceeded'
+    ? '#ef4444'
+    : budgetStatus === 'warning'
+      ? '#f59e0b'
+      : '#6366f1',
           }}
         />
       </div>
+
+      {budgetStatus === 'warning' && (
+  <p className="budget-alert warning">
+    ⚠️ Warning: You've used {budgetPercentage.toFixed(0)}%
+    of your monthly budget.
+  </p>
+)}
+
+{budgetStatus === 'exceeded' && (
+  <p className="budget-alert exceeded">
+    🚨 You've reached or exceeded your monthly budget!
+  </p>
+)}
 
       <p>
         {remainingBudget >= 0

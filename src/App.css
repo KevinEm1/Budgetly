@@ -382,3 +382,21 @@ h1 {
   gap: 10px;
 }
 }
+
+.budget-alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.budget-alert.warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.budget-alert.exceeded {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
