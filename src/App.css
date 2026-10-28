@@ -400,3 +400,25 @@ h1 {
   background-color: #fee2e2;
   color: #991b1b;
 }
+
+.export-button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 12px 0 20px;
+  transition: background-color 0.2s ease;
+}
+
+.export-button:hover {
+  background-color: #1d4ed8;
+}
+
+.export-button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}

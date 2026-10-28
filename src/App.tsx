@@ -169,6 +169,52 @@ function handleEdit(transaction: Transaction) {
   setCategory(transaction.category ?? 'Other')
 }
 
+function handleExportCSV() {
+  const headers = [
+    'Description',
+    'Amount',
+    'Type',
+    'Category',
+    'Date',
+  ]
+
+  const monthlyTransactions = transactions.filter(
+  (transaction) => transaction.date.startsWith(selectedMonth)
+)
+
+const rows = monthlyTransactions.map((transaction) => [
+  transaction.description,
+  transaction.amount,
+  transaction.type,
+  transaction.category ?? 'Other',
+  transaction.date,
+])
+
+  const escapeCSV = (value: string | number) => {
+    const text = String(value)
+    return `"${text.replace(/"/g, '""')}"`
+  }
+
+  const csvContent = [headers, ...rows]
+    .map((row) => row.map(escapeCSV).join(','))
+    .join('\r\n')
+
+  const blob = new Blob(['\uFEFF', csvContent], {
+    type: 'text/csv;charset=utf-8;',
+  })
+
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = url
+  link.download = `budgetly-transactions-${selectedMonth}.csv`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
 function handleSubmit(event: FormEvent<HTMLFormElement>) {
   event.preventDefault()
   const form = event.currentTarget
@@ -493,6 +539,14 @@ return (
 
     <section className="content-card">
       <h2>Recent transactions</h2>
+
+<button
+  type="button"
+  className="export-button"
+  onClick={handleExportCSV}
+>
+  Export CSV
+</button>
 
 <div className="filter-buttons">
   <button
