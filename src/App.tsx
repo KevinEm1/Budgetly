@@ -215,6 +215,199 @@ const rows = monthlyTransactions.map((transaction) => [
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
+function handleImportCSV(file: File) {
+  const reader = new FileReader()
+
+  reader.onload = () => {
+    const content = reader.result
+
+    if (typeof content !== 'string') {
+      alert('Unable to read the CSV file.')
+      return
+    }
+
+    const text = content.replace(/^\uFEFF/, '')
+
+const rows: string[][] = []
+let row: string[] = []
+let value = ''
+let insideQuotes = false
+
+for (let i = 0; i < text.length; i++) {
+  const char = text[i]
+
+  if (char === '"') {
+    if (insideQuotes && text[i + 1] === '"') {
+      value += '"'
+      i++
+    } else {
+      insideQuotes = !insideQuotes
+    }
+  } else if (char === ',' && !insideQuotes) {
+    row.push(value)
+    value = ''
+  } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+    if (char === '\r' && text[i + 1] === '\n') i++
+
+    row.push(value)
+    rows.push(row)
+    row = []
+    value = ''
+  } else {
+    value += char
+  }
+}
+
+if (insideQuotes) {
+  alert('The CSV file contains an incomplete quoted field.')
+  return
+}
+
+if (row.length > 0 || value !== '') {
+  row.push(value)
+  rows.push(row)
+}
+
+const expectedHeaders = [
+  'Description',
+  'Amount',
+  'Type',
+  'Category',
+  'Date',
+]
+
+const headers = rows[0]
+
+if (
+  !headers ||
+  headers.length !== expectedHeaders.length ||
+  !headers.every(
+    (header, index) => header.trim() === expectedHeaders[index]
+  )
+) {
+  alert('Invalid CSV format. Please use a Budgetly CSV export.')
+  return
+}
+
+const dataRows = rows.slice(1).filter(
+  (row) => row.some((value) => value.trim() !== '')
+)
+
+const validTransactions = dataRows.filter((row) => {
+  if (row.length !== 5) return false
+
+  const [description, amount, type, , date] = row
+  const parsedAmount = Number(amount)
+
+  const validDate =
+    /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    !Number.isNaN(Date.parse(`${date}T00:00:00Z`)) &&
+    new Date(`${date}T00:00:00Z`)
+      .toISOString()
+      .slice(0, 10) === date
+
+  return (
+    description.trim() !== '' &&
+    amount.trim() !== '' &&
+    Number.isFinite(parsedAmount) &&
+    parsedAmount > 0 &&
+    (type === 'income' || type === 'expense') &&
+    validDate
+  )
+})
+
+const importedTransactions: Transaction[] = validTransactions.map(
+  (row, index) => {
+    const [description, amount, type, category, date] = row
+
+    return {
+      id: Date.now() + index,
+      description: description.trim(),
+      amount: Number(amount),
+      type: type as 'income' | 'expense',
+      category: category.trim() || 'Other',
+      date,
+    }
+  }
+)
+
+const existingTransactions = new Set(
+  transactions.map((transaction) =>
+    JSON.stringify([
+      transaction.description.trim(),
+      transaction.amount,
+      transaction.type,
+      transaction.category,
+      transaction.date,
+    ])
+  )
+)
+
+const uniqueTransactions = importedTransactions.filter(
+  (transaction) => {
+    const key = JSON.stringify([
+      transaction.description,
+      transaction.amount,
+      transaction.type,
+      transaction.category,
+      transaction.date,
+    ])
+
+    if (existingTransactions.has(key)) {
+      return false
+    }
+
+    existingTransactions.add(key)
+    return true
+  }
+)
+
+
+if (uniqueTransactions.length === 0) {
+  alert('No new transactions to import.')
+  return
+}
+
+const confirmed = window.confirm(
+  `Import ${uniqueTransactions.length} new transactions?`
+)
+
+if (!confirmed) return
+
+const existingIds = new Set(
+  transactions.map((transaction) => transaction.id)
+)
+
+const transactionsToAdd = uniqueTransactions.map((transaction) => {
+  let id = Date.now() + Math.floor(Math.random() * 1000000)
+
+  while (existingIds.has(id)) {
+    id++
+  }
+
+  existingIds.add(id)
+
+  return {
+    ...transaction,
+    id,
+  }
+})
+
+setTransactions((previous) => [
+  ...previous,
+  ...transactionsToAdd,
+])
+
+alert(`Successfully imported ${transactionsToAdd.length} transactions!`)
+  }
+
+  reader.onerror = () => {
+    alert('There was an error reading the file.')
+  }
+
+  reader.readAsText(file)
+}
+
 function handleSubmit(event: FormEvent<HTMLFormElement>) {
   event.preventDefault()
   const form = event.currentTarget
@@ -547,6 +740,24 @@ return (
 >
   Export CSV
 </button>
+
+<label className="import-button">
+  Import CSV
+  <input
+    type="file"
+    accept=".csv,text/csv"
+    hidden
+    onChange={(e) => {
+      const file = e.target.files?.[0]
+
+      if (file) {
+        handleImportCSV(file)
+      }
+
+      e.target.value = ''
+    }}
+  />
+</label>
 
 <div className="filter-buttons">
   <button

@@ -422,3 +422,19 @@ h1 {
   outline: 3px solid #93c5fd;
   outline-offset: 3px;
 }
+
+.import-button {
+  display: inline-block;
+  background-color: #16a34a;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 12px 8px 20px 0;
+}
+
+.import-button:hover {
+  background-color: #15803d;
+}
