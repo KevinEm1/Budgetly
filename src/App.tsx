@@ -364,7 +364,18 @@ const uniqueTransactions = importedTransactions.filter(
 
 
 if (uniqueTransactions.length === 0) {
-  alert('No new transactions to import.')
+  const duplicatesSkipped =
+    importedTransactions.length - uniqueTransactions.length
+
+  const invalidRows =
+    dataRows.length - validTransactions.length
+
+  alert(
+    `No new transactions to import.\n\n` +
+    `Duplicates skipped: ${duplicatesSkipped}\n` +
+    `Invalid rows skipped: ${invalidRows}`
+  )
+
   return
 }
 
@@ -398,7 +409,18 @@ setTransactions((previous) => [
   ...transactionsToAdd,
 ])
 
-alert(`Successfully imported ${transactionsToAdd.length} transactions!`)
+const duplicatesSkipped =
+  importedTransactions.length - uniqueTransactions.length
+
+const invalidRows =
+  dataRows.length - validTransactions.length
+
+alert(
+  `CSV Import Complete!\n\n` +
+  `Imported: ${transactionsToAdd.length}\n` +
+  `Duplicates skipped: ${duplicatesSkipped}\n` +
+  `Invalid rows skipped: ${invalidRows}`
+)
   }
 
   reader.onerror = () => {
