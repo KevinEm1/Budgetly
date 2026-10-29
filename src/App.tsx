@@ -90,6 +90,24 @@ function App() {
   }).replace('/', '-')
 )
 
+type Notification = {
+  message: string
+  type: 'success' | 'error' | 'warning'
+}
+
+const [notification, setNotification] =
+  useState<Notification | null>(null)
+
+  useEffect(() => {
+  if (!notification) return
+
+  const timeout = window.setTimeout(() => {
+    setNotification(null)
+  }, 5000)
+
+  return () => window.clearTimeout(timeout)
+}, [notification])
+
   const [monthlyBudgets, setMonthlyBudgets] = useState<Record<string, number>>(
   () => {
     const savedBudgets = localStorage.getItem('budgetly-monthly-budgets')
@@ -222,9 +240,12 @@ function handleImportCSV(file: File) {
     const content = reader.result
 
     if (typeof content !== 'string') {
-      alert('Unable to read the CSV file.')
-      return
-    }
+  setNotification({
+    type: 'error',
+    message: 'Unable to read the CSV file.',
+  })
+  return
+}
 
     const text = content.replace(/^\uFEFF/, '')
 
@@ -259,7 +280,10 @@ for (let i = 0; i < text.length; i++) {
 }
 
 if (insideQuotes) {
-  alert('The CSV file contains an incomplete quoted field.')
+  setNotification({
+    type: 'error',
+    message: 'The CSV file contains an incomplete quoted field.',
+  })
   return
 }
 
@@ -285,7 +309,10 @@ if (
     (header, index) => header.trim() === expectedHeaders[index]
   )
 ) {
-  alert('Invalid CSV format. Please use a Budgetly CSV export.')
+  setNotification({
+  type: 'error',
+  message: 'Invalid CSV format. Please use a Budgetly CSV export.',
+})
   return
 }
 
@@ -370,11 +397,13 @@ if (uniqueTransactions.length === 0) {
   const invalidRows =
     dataRows.length - validTransactions.length
 
-  alert(
-    `No new transactions to import.\n\n` +
-    `Duplicates skipped: ${duplicatesSkipped}\n` +
-    `Invalid rows skipped: ${invalidRows}`
-  )
+  setNotification({
+    type: 'warning',
+    message:
+      `No new transactions to import.\n\n` +
+      `Duplicates skipped: ${duplicatesSkipped}\n` +
+      `Invalid rows skipped: ${invalidRows}`,
+  })
 
   return
 }
@@ -415,17 +444,22 @@ const duplicatesSkipped =
 const invalidRows =
   dataRows.length - validTransactions.length
 
-alert(
-  `CSV Import Complete!\n\n` +
-  `Imported: ${transactionsToAdd.length}\n` +
-  `Duplicates skipped: ${duplicatesSkipped}\n` +
-  `Invalid rows skipped: ${invalidRows}`
-)
+setNotification({
+  type: 'success',
+  message:
+    `CSV Import Complete!\n\n` +
+    `Imported: ${transactionsToAdd.length}\n` +
+    `Duplicates skipped: ${duplicatesSkipped}\n` +
+    `Invalid rows skipped: ${invalidRows}`,
+})
   }
 
-  reader.onerror = () => {
-    alert('There was an error reading the file.')
-  }
+ reader.onerror = () => {
+  setNotification({
+    type: 'error',
+    message: 'There was an error reading the file.',
+  })
+}
 
   reader.readAsText(file)
 }
@@ -517,6 +551,23 @@ useLayoutEffect(() => {
 
 return (
   <main className="app">
+  {notification && (
+  <div
+    className={`notification notification-${notification.type}`}
+    role="status"
+  >
+    <span>{notification.message}</span>
+
+    <button
+      type="button"
+      className="notification-close"
+      onClick={() => setNotification(null)}
+      aria-label="Close notification"
+    >
+      ×
+    </button>
+  </div>
+)}
     <header className="topbar">
       <div>
         <p className="eyebrow">PERSONAL FINANCE DASHBOARD</p>
