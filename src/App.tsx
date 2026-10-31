@@ -98,6 +98,15 @@ type Notification = {
 const [notification, setNotification] =
   useState<Notification | null>(null)
 
+const [showImportConfirm, setShowImportConfirm] = useState(false)
+
+const [pendingImport, setPendingImport] = useState<Transaction[]>([])
+
+const [importStats, setImportStats] = useState({
+  duplicatesSkipped: 0,
+  invalidRows: 0,
+})
+
   useEffect(() => {
   if (!notification) return
 
@@ -408,18 +417,14 @@ if (uniqueTransactions.length === 0) {
   return
 }
 
-const confirmed = window.confirm(
-  `Import ${uniqueTransactions.length} new transactions?`
-)
-
-if (!confirmed) return
-
 const existingIds = new Set(
   transactions.map((transaction) => transaction.id)
 )
 
 const transactionsToAdd = uniqueTransactions.map((transaction) => {
   let id = Date.now() + Math.floor(Math.random() * 1000000)
+
+  
 
   while (existingIds.has(id)) {
     id++
@@ -433,25 +438,15 @@ const transactionsToAdd = uniqueTransactions.map((transaction) => {
   }
 })
 
-setTransactions((previous) => [
-  ...previous,
-  ...transactionsToAdd,
-])
-
-const duplicatesSkipped =
-  importedTransactions.length - uniqueTransactions.length
-
-const invalidRows =
-  dataRows.length - validTransactions.length
-
-setNotification({
-  type: 'success',
-  message:
-    `CSV Import Complete!\n\n` +
-    `Imported: ${transactionsToAdd.length}\n` +
-    `Duplicates skipped: ${duplicatesSkipped}\n` +
-    `Invalid rows skipped: ${invalidRows}`,
+setImportStats({
+  duplicatesSkipped:
+    importedTransactions.length - uniqueTransactions.length,
+  invalidRows:
+    dataRows.length - validTransactions.length,
 })
+
+setPendingImport(transactionsToAdd)
+setShowImportConfirm(true)
   }
 
  reader.onerror = () => {
@@ -556,18 +551,70 @@ return (
     className={`notification notification-${notification.type}`}
     role="status"
   >
-    <span>{notification.message}</span>
-
-    <button
-      type="button"
-      className="notification-close"
-      onClick={() => setNotification(null)}
-      aria-label="Close notification"
-    >
-      ×
-    </button>
+    {notification.message}
   </div>
 )}
+
+{showImportConfirm && (
+  <div className="modal-overlay">
+    <div
+      className="import-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="import-modal-title"
+    >
+      <h2 id="import-modal-title">Confirm CSV Import</h2>
+
+      <p>
+        You're about to import{' '}
+        <strong>{pendingImport.length}</strong> new transactions.
+      </p>
+
+      <p>Would you like to continue?</p>
+
+      <div className="modal-actions">
+        <button
+          type="button"
+          className="modal-cancel"
+          onClick={() => {
+            setShowImportConfirm(false)
+            setPendingImport([])
+          }}
+        >
+          Cancel
+        </button>
+
+    <button
+  type="button"
+  className="modal-confirm"
+  onClick={() => {
+    if (pendingImport.length === 0) return
+    setTransactions((previous) => [
+      ...previous,
+      ...pendingImport,
+    ])
+
+    setNotification({
+  type: 'success',
+  message:
+    `CSV Import Complete!\n\n` +
+    `Imported: ${pendingImport.length}\n` +
+    `Duplicates skipped: ${importStats.duplicatesSkipped}\n` +
+    `Invalid rows skipped: ${importStats.invalidRows}`,
+})
+
+    setPendingImport([])
+    setShowImportConfirm(false)
+  }}
+>
+  Import Transactions
+</button>
+      </div>
+    </div>
+  </div>
+)}
+
+    
     <header className="topbar">
       <div>
         <p className="eyebrow">PERSONAL FINANCE DASHBOARD</p>

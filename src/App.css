@@ -494,3 +494,79 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   padding: 0 4px;
 }
+
+/* CSV Import Modal */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.import-modal {
+  background-color: white;
+  color: #041834;;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.import-modal h2 {
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.import-modal p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-cancel,
+.modal-confirm {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.modal-confirm {
+  background-color: #2563eb;
+  color: white;
+}
+
+.modal-cancel:hover {
+  background-color: #d1d5db;
+}
+
+.modal-confirm:hover {
+  background-color: #1d4ed8;
+}
+
+.import-modal h2,
+.import-modal p,
+.import-modal strong {
+  color: #1f2937;
+}
