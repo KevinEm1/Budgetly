@@ -1,75 +1,100 @@
-# React + TypeScript + Vite
+# Budgetly — Personal Finance Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Budgetly is a responsive personal finance application built with React and TypeScript. It helps users manage income and expenses, track spending habits, and visualize financial activity through an intuitive dashboard.
 
-Currently, two official plugins are available:
+## Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+[View Budgetly](https://budgetly-sage.vercel.app)
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Screenshots
 
-## Expanding the ESLint configuration
+### Desktop Dashboard
+![Budgetly Desktop Dashboard](screenshots/budgetly-desktop.png)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Mobile Dashboard
+![Budgetly Mobile Dashboard](screenshots/budgetly-mobile-chart.png)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Features
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Transaction Management:** Add, edit, and delete income and expense transactions.
+- **Financial Dashboard:** View total balance, income, and expenses.
+- **Expense Visualization:** Analyze spending by category using an interactive chart.
+- **Search and Filtering:** Search transactions and filter by transaction type, category, and month.
+- **CSV Import and Export:** Import transaction data from CSV files and export financial records.
+- **LocalStorage Persistence:** Save transactions directly in the browser without requiring an account.
+- **Responsive Design:** Optimized layouts for desktop and mobile devices.
+- **Input Validation:** Prevent invalid transaction entries.
 
-```
+## Technologies Used
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+- React
+- TypeScript
+- JavaScript
+- HTML5
+- CSS3
+- Vite
+- Git and GitHub
+- Vercel
+- Browser LocalStorage API
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
 
-```
+Install Node.js and npm.
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone YOUR_REPOSITORY_URL
+   ```
+
+2. Navigate into the project directory:
+
+   ```bash
+   cd budgetly
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open the local URL displayed in your terminal.
+
+## What I Learned
+
+Building Budgetly strengthened my understanding of React, TypeScript, and front-end application development.
+
+Key learning experiences included:
+
+- Managing application state with React hooks.
+- Using TypeScript interfaces and types to structure transaction data.
+- Implementing CRUD operations.
+- Persisting data using LocalStorage.
+- Handling CSV file imports and exports.
+- Creating responsive layouts for different screen sizes.
+- Debugging application logic and improving user experience.
+- Deploying a production-ready application using Vercel.
+
+## Future Improvements
+
+- User authentication and cloud-based data storage.
+- Recurring transactions.
+- Advanced financial reports and analytics.
+- Custom spending goals and notifications.
+
+## Author
+
+Developed by [KevinEm1](https://github.com/KevinEm1).

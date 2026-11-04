@@ -823,7 +823,7 @@ return (
           dataKey="value"
           nameKey="name"
           cx="50%"
-          cy="50%"
+          cy="55%"
           outerRadius={100}
           label
         >
