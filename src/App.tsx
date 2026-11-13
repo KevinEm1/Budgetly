@@ -1,13 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, lazy, Suspense } from 'react'
 import './App.css'
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts'
+
+const BudgetChart = lazy(() => import('./BudgetChart'))
 
 type Transaction = {
   id: number
@@ -816,35 +810,12 @@ return (
   <h2>Expenses by Category</h2>
 
   {chartData.length > 0 ? (
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie
-          data={chartData}
-          dataKey="value"
-          nameKey="name"
-          cx="50%"
-          cy="55%"
-          outerRadius={100}
-          label
-        >
-          {chartData.map((entry) => (
-  <Cell
-    key={entry.name}
-    fill={CATEGORY_COLORS[entry.name] ?? CATEGORY_COLORS.Other}
+    <Suspense fallback={<p>Loading chart...</p>}>
+  <BudgetChart
+    chartData={chartData}
+    categoryColors={CATEGORY_COLORS}
   />
-))}
-        </Pie>
-        <Tooltip
-  formatter={(value) =>
-    Number(value).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    })
-  }
-/>
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
+</Suspense>
   ) : (
     <p>No expenses to display yet.</p>
   )}
