@@ -1,81 +1,101 @@
 # Budgetly — Personal Finance Dashboard
 
-Budgetly is a responsive personal finance application built with React and TypeScript. It helps users manage income and expenses, track spending habits, and visualize financial activity through an intuitive dashboard.
+Budgetly is a responsive personal finance dashboard built with React and TypeScript. Track income and expenses, set monthly budgets, and see where your money goes with interactive charts. No account is needed: your data stays in your browser.
 
-## Live Demo
-
-[View Budgetly](https://budgetly-sage.vercel.app)
-
+**[Live Demo →](https://budgetly-sage.vercel.app)** (loads with sample data so you can explore right away)
 
 ## Screenshots
 
-### Desktop Dashboard
-![Budgetly Desktop Dashboard](screenshots/budgetly-desktop.png)
+### Desktop
 
-### Mobile Dashboard
-![Budgetly Mobile Dashboard](screenshots/budgetly-mobile-chart.png)
+![Budgetly desktop dashboard](screenshots/budgetly-desktop.png)
 
+### Mobile
+
+![Budgetly mobile dashboard with spending chart](screenshots/budgetly-mobile-chart.png)
 
 ## Features
 
-- **Transaction Management:** Add, edit, and delete income and expense transactions.
-- **Financial Dashboard:** View total balance, income, and expenses.
-- **Expense Visualization:** Analyze spending by category using an interactive chart.
-- **Search and Filtering:** Search transactions and filter by transaction type, category, and month.
-- **CSV Import and Export:** Import transaction data from CSV files and export financial records.
-- **LocalStorage Persistence:** Save transactions directly in the browser without requiring an account.
-- **Responsive Design:** Optimized layouts for desktop and mobile devices.
-- **Input Validation:** Prevent invalid transaction entries.
+- **Transaction management:** add, edit, and delete income and expense transactions.
+- **Dashboard overview:** see total balance, income, and expenses at a glance.
+- **Spending by category:** an interactive chart shows where your money goes.
+- **Search and filters:** find transactions by keyword, and filter by type, category, and month.
+- **CSV import and export:** bring in existing records or download your data.
+- **Local persistence:** transactions are saved in the browser with `localStorage`.
+- **Input validation:** invalid entries are rejected before they are saved.
+- **Responsive layout:** designed for both desktop and mobile screens.
 
-## Technologies Used
+## Tech Stack
 
-- React
-- TypeScript
-- JavaScript
-- HTML5
-- CSS3
-- Vite
-- Git and GitHub
-- Vercel
-- Browser LocalStorage API
+| Area | Tools |
+| --- | --- |
+| Framework | React 19, TypeScript |
+| Build tool | Vite |
+| Charts | Recharts |
+| Storage | Browser `localStorage` API |
+| Quality | ESLint, TypeScript type-checking on build |
+| Hosting | Vercel |
 
 ## Getting Started
 
 ### Prerequisites
 
-Install Node.js and npm.
+[Node.js](https://nodejs.org/) (current LTS) and npm.
 
-### Installation
+### Run locally
 
-1. Clone the repository:
+```bash
+git clone https://github.com/KevinEm1/Budgetly.git
+cd Budgetly
+npm install
+npm run dev
+```
 
-   ```bash
-   git clone YOUR_REPOSITORY_URL
-   ```
+Then open the local URL printed in your terminal.
 
-2. Navigate into the project directory:
+### Other scripts
 
-   ```bash
-   cd budgetly
-   ```
+| Command | What it does |
+| --- | --- |
+| `npm run build` | Type-checks the project and creates a production build |
+| `npm run preview` | Serves the production build locally |
+| `npm run lint` | Runs ESLint |
 
-3. Install dependencies:
+## Technical Notes
 
-   ```bash
-   npm install
-   ```
+  **Architecture and State Management**
 
-4. Start the development server:
+- Built with React, TypeScript, and Vite for a modern, component-based frontend architecture.
+- Used React hooks (useState and useEffect) to manage transaction data and synchronize changes with localStorage.
+- Defined TypeScript types for transactions to improve type safety and maintainability.
 
-   ```bash
-   npm run dev
-   ```
+**Data Persistence and Validation**
 
-5. Open the local URL displayed in your terminal.
+- Implemented localStorage to preserve transaction data across browser sessions without requiring a backend.
+- Added form validation to prevent invalid transaction entries, including empty descriptions, non-positive amounts, and invalid dates.
+- Implemented CSV import and export functionality to support transaction data portability.
+
+**Data Visualization**
+
+- Integrated Recharts to visualize expenses by category using an interactive pie chart.
+- Implemented category-specific colors and currency-formatted tooltips to improve readability.
+
+**Performance Optimization**
+
+- Implemented code splitting using React.lazy() and Suspense to load the chart component separately from the main application.
+- Reduced the initial JavaScript bundle from 563.42 kB to 233.86 kB, approximately a 58.5% reduction.
+- Resolved Vite's 500 kB chunk-size warning without increasing the warning threshold.
+- Verified that chart functionality remained intact after optimization.
+
+**Deployment**
+
+- Deployed the application using Vercel.
+- Used Git and GitHub for version control and deployment updates.
+
 
 ## What I Learned
 
-Building Budgetly strengthened my understanding of React, TypeScript, and front-end application development.
+- Building Budgetly strengthened my understanding of React, TypeScript, and front-end application development.
 
 Key learning experiences included:
 
@@ -88,13 +108,18 @@ Key learning experiences included:
 - Debugging application logic and improving user experience.
 - Deploying a production-ready application using Vercel.
 
-## Future Improvements
+## Known Limitations
 
-- User authentication and cloud-based data storage.
-- Recurring transactions.
-- Advanced financial reports and analytics.
-- Custom spending goals and notifications.
+- Data lives only in your browser. Clearing site data or switching devices means starting over, because there is no account or server.
+
+## Roadmap
+
+- [ ] User accounts with cloud storage (so data syncs across devices)
+- [ ] Automated tests for calculations and CSV handling
+- [ ] Recurring transactions
+- [ ] Spending goals and notifications
+- [ ] Monthly and yearly reports
 
 ## Author
 
-Developed by [KevinEm1](https://github.com/KevinEm1).
+Built by [Kevin Emiliano](https://github.com/KevinEm1). Connect with me on [LinkedIn](https://www.linkedin.com/in/kevin-emiliano/).
