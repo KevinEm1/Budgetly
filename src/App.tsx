@@ -12,6 +12,16 @@ type Transaction = {
   date: string
 }
 
+function getTransactionKey(transaction: Transaction): string {
+  return JSON.stringify([
+    transaction.description.trim(),
+    transaction.amount,
+    transaction.type,
+    transaction.category?.trim() || 'Other',
+    transaction.date,
+  ])
+}
+
 function getLocalDate(date: Date = new Date()): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -368,26 +378,12 @@ const importedTransactions: Transaction[] = validTransactions.map(
 )
 
 const existingTransactions = new Set(
-  transactions.map((transaction) =>
-    JSON.stringify([
-      transaction.description.trim(),
-      transaction.amount,
-      transaction.type,
-      transaction.category,
-      transaction.date,
-    ])
-  )
+  transactions.map(getTransactionKey)
 )
 
 const uniqueTransactions = importedTransactions.filter(
   (transaction) => {
-    const key = JSON.stringify([
-      transaction.description,
-      transaction.amount,
-      transaction.type,
-      transaction.category,
-      transaction.date,
-    ])
+    const key = getTransactionKey(transaction)
 
     if (existingTransactions.has(key)) {
       return false
