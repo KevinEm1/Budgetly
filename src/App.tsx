@@ -68,18 +68,26 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 function App() {
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const savedTransactions = localStorage.getItem('budgetly-transactions')
-    
-  if (!savedTransactions) {
-    return startingTransactions
-  }
-
   try {
-    return JSON.parse(savedTransactions) as Transaction[]
-  } catch {
+    const savedTransactions = localStorage.getItem('budgetly-transactions')
+
+    if (!savedTransactions) {
+      return startingTransactions
+    }
+
+    const parsed: unknown = JSON.parse(savedTransactions)
+
+    if (!Array.isArray(parsed)) {
+      console.warn('Invalid transactions data in localStorage')
+      return startingTransactions
+    }
+
+    return parsed as Transaction[]
+  } catch (error) {
+    console.error('Failed to load transactions:', error)
     return startingTransactions
   }
-  })
+})
 
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -129,31 +137,52 @@ const [importStats, setImportStats] = useState({
   return () => window.clearTimeout(timeout)
 }, [notification])
 
-  const [monthlyBudgets, setMonthlyBudgets] = useState<Record<string, number>>(
-  () => {
+  const [monthlyBudgets, setMonthlyBudgets] = useState<Record<string, number>>(() => {
+  try {
     const savedBudgets = localStorage.getItem('budgetly-monthly-budgets')
 
-    if (savedBudgets) {
-      try {
-        return JSON.parse(savedBudgets) as Record<string, number>
-      } catch {
-        return {}
-      }
+    if (!savedBudgets) {
+      return {}
     }
 
+    const parsed: unknown = JSON.parse(savedBudgets)
+
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      console.warn('Invalid monthly budgets data')
+      return {}
+    }
+
+    return parsed as Record<string, number>
+  } catch (error) {
+    console.error('Failed to load monthly budgets:', error)
     return {}
   }
-)
+})
 
   useEffect(() => {
-    localStorage.setItem('budgetly-transactions', JSON.stringify(transactions))
-  }, [transactions])
+  try {
+    localStorage.setItem(
+      'budgetly-transactions',
+      JSON.stringify(transactions)
+    )
+  } catch (error) {
+    console.error('Failed to save transactions:', error)
+  }
+}, [transactions])
 
   useEffect(() => {
-  localStorage.setItem(
-    'budgetly-monthly-budgets',
-    JSON.stringify(monthlyBudgets)
-  )
+  try {
+    localStorage.setItem(
+      'budgetly-monthly-budgets',
+      JSON.stringify(monthlyBudgets)
+    )
+  } catch (error) {
+    console.error('Failed to save monthly budgets:', error)
+  }
 }, [monthlyBudgets])
 
   const thisMonthTransactions = transactions.filter((transaction) =>
