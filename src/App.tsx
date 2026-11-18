@@ -12,6 +12,50 @@ type Transaction = {
   date: string
 }
 
+function isValidTransaction(value: unknown): value is Transaction {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const transaction = value as Record<string, unknown>
+
+  return (
+    typeof transaction.id === 'number' &&
+    Number.isFinite(transaction.id) &&
+    typeof transaction.description === 'string' &&
+    transaction.description.trim().length > 0 &&
+    typeof transaction.amount === 'number' &&
+    Number.isFinite(transaction.amount) &&
+    transaction.amount > 0 &&
+    (transaction.type === 'income' || transaction.type === 'expense') &&
+    (transaction.category === undefined ||
+      typeof transaction.category === 'string') &&
+    typeof transaction.date === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(transaction.date)
+  )
+}
+
+function isValidMonthlyBudgets(
+  value: unknown
+): value is Record<string, number> {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    Array.isArray(value)
+  ) {
+    return false
+  }
+
+  return Object.entries(value).every(([month, amount]) => {
+    return (
+      /^\d{4}-(0[1-9]|1[0-2])$/.test(month) &&
+      typeof amount === 'number' &&
+      Number.isFinite(amount) &&
+      amount >= 0
+    )
+  })
+}
+
 function getTransactionKey(transaction: Transaction): string {
   return JSON.stringify([
     transaction.description.trim(),
@@ -77,12 +121,19 @@ function App() {
 
     const parsed: unknown = JSON.parse(savedTransactions)
 
-    if (!Array.isArray(parsed)) {
-      console.warn('Invalid transactions data in localStorage')
-      return startingTransactions
-    }
+if (!Array.isArray(parsed)) {
+  console.warn('Invalid transactions data in localStorage')
+  return startingTransactions
+}
 
-    return parsed as Transaction[]
+const validTransactions = parsed.filter(isValidTransaction)
+
+if (validTransactions.length !== parsed.length) {
+  console.warn('Some invalid transactions were skipped')
+}
+
+return validTransactions
+
   } catch (error) {
     console.error('Failed to load transactions:', error)
     return startingTransactions
@@ -147,16 +198,12 @@ const [importStats, setImportStats] = useState({
 
     const parsed: unknown = JSON.parse(savedBudgets)
 
-    if (
-      typeof parsed !== 'object' ||
-      parsed === null ||
-      Array.isArray(parsed)
-    ) {
-      console.warn('Invalid monthly budgets data')
-      return {}
-    }
+    if (!isValidMonthlyBudgets(parsed)) {
+  console.warn('Invalid monthly budgets data')
+  return {}
+}
 
-    return parsed as Record<string, number>
+return parsed
   } catch (error) {
     console.error('Failed to load monthly budgets:', error)
     return {}
