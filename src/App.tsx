@@ -12,6 +12,22 @@ type Transaction = {
   date: string
 }
 
+const CATEGORIES = [
+  'Housing',
+  'Food',
+  'Transportation',
+  'Entertainment',
+  'Shopping',
+  'Utilities',
+  'Other',
+] as const
+
+function normalizeCategory(category: string | undefined): string {
+  const trimmed = category?.trim() || 'Other'
+
+  return CATEGORIES.find((item) => item === trimmed) ?? 'Other'
+}
+
 function isValidDate(date: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return false
@@ -464,7 +480,7 @@ const importedTransactions: Transaction[] = validTransactions.map(
       description: description.trim(),
       amount: Number(amount),
       type: type as 'income' | 'expense',
-      category: category.trim() || 'Other',
+      category: normalizeCategory(category),
       date,
     }
   }
@@ -725,7 +741,10 @@ return (
       <section className="content-card" ref={formRef}>
         <h2>{editingTransaction ? 'Edit Transaction' : 'New Transaction'}</h2>
       
-        <form onSubmit={handleSubmit}>
+        <form
+          key={editingTransaction?.id ?? 'new'}
+          onSubmit={handleSubmit}
+        >
           <p>
             <label>
               Description
@@ -765,17 +784,16 @@ return (
             </label>
           </p>
 
-          <select
+  
+  <select
   value={category}
   onChange={(e) => setCategory(e.target.value)}
 >
-  <option value="Housing">Housing</option>
-  <option value="Food">Food</option>
-  <option value="Transportation">Transportation</option>
-  <option value="Entertainment">Entertainment</option>
-  <option value="Shopping">Shopping</option>
-  <option value="Utilities">Utilities</option>
-  <option value="Other">Other</option>
+  {CATEGORIES.map((categoryOption) => (
+    <option key={categoryOption} value={categoryOption}>
+      {categoryOption}
+    </option>
+  ))}
 </select>
 
           <p>
