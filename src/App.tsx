@@ -12,6 +12,23 @@ type Transaction = {
   date: string
 }
 
+function isValidDate(date: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return false
+  }
+
+  const [year, month, day] = date.split('-').map(Number)
+
+  const parsedDate = new Date(0)
+  parsedDate.setFullYear(year, month - 1, day)
+
+  return (
+    parsedDate.getFullYear() === year &&
+    parsedDate.getMonth() === month - 1 &&
+    parsedDate.getDate() === day
+  )
+}
+
 function isValidTransaction(value: unknown): value is Transaction {
   if (typeof value !== 'object' || value === null) {
     return false
@@ -31,7 +48,7 @@ function isValidTransaction(value: unknown): value is Transaction {
     (transaction.category === undefined ||
       typeof transaction.category === 'string') &&
     typeof transaction.date === 'string' &&
-    /^\d{4}-\d{2}-\d{2}$/.test(transaction.date)
+    isValidDate(transaction.date)
   )
 }
 
