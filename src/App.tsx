@@ -109,6 +109,14 @@ function getLocalDate(date: Date = new Date()): string {
 
 const today = getLocalDate()
 
+function toCents(amount: number): number {
+  return Math.round(amount * 100)
+}
+
+function fromCents(cents: number): number {
+  return cents / 100
+}
+
 const startingTransactions: Transaction[] = [
   {
     id: 1,
@@ -269,21 +277,34 @@ return parsed
   transaction.date.startsWith(selectedMonth)
 )
 
-const totalBalance = transactions.reduce((total, transaction) => {
-  return total + (transaction.type === 'income' ? transaction.amount : -transaction.amount)
-}, 0)
+const totalBalance = fromCents(
+  transactions.reduce((total, transaction) => {
+    const amountInCents = toCents(transaction.amount)
 
-const monthlyIncome = thisMonthTransactions
-  .filter((transaction) => transaction.type === 'income')
-  .reduce((total, transaction) => total + transaction.amount, 0)
- 
-const monthlyExpenses = thisMonthTransactions
-  .filter((transaction) => transaction.type === 'expense')
-  .reduce((total, transaction) => total + transaction.amount, 0)
+    return total + (
+      transaction.type === 'income'
+        ? amountInCents
+        : -amountInCents
+    )
+  }, 0)
+)
+const monthlyIncome = fromCents(
+  thisMonthTransactions
+    .filter((transaction) => transaction.type === 'income')
+    .reduce((total, transaction) => total + toCents(transaction.amount), 0)
+)
+
+const monthlyExpenses = fromCents(
+  thisMonthTransactions
+    .filter((transaction) => transaction.type === 'expense')
+    .reduce((total, transaction) => total + toCents(transaction.amount), 0)
+)
 
 const currentBudget = monthlyBudgets[selectedMonth] ?? 0
 
-const remainingBudget = currentBudget - monthlyExpenses
+const remainingBudget = fromCents(
+  toCents(currentBudget) - toCents(monthlyExpenses)
+)
 
 const budgetPercentage =
   currentBudget > 0
@@ -293,11 +314,11 @@ const budgetPercentage =
 const budgetStatus =
   currentBudget <= 0
     ? 'not-set'
-    : budgetPercentage >= 100
-      ? 'exceeded'
-      : budgetPercentage >= 80
-        ? 'warning'
-        : 'safe'
+    : toCents(monthlyExpenses) > toCents(currentBudget)
+    ? 'exceeded'
+    : budgetPercentage >= 80
+    ? 'warning'
+    : 'safe'
 
 function handleDelete(id: number, desctription: string) {
   const shouldDelete = window.confirm(`Delete "${desctription}"?`)
@@ -478,7 +499,7 @@ const importedTransactions: Transaction[] = validTransactions.map(
     return {
       id: Date.now() + index,
       description: description.trim(),
-      amount: Number(amount),
+      amount: fromCents(Number(amount)),
       type: type as 'income' | 'expense',
       category: normalizeCategory(category),
       date,
@@ -628,7 +649,8 @@ const expensesByCategory = thisMonthTransactions
   .reduce<Record<string, number>>((totals, transaction) => {
     const category = transaction.category ?? 'Other'
 
-    totals[category] = (totals[category] ?? 0) + transaction.amount
+    totals[category] =
+      (totals[category] ?? 0) + toCents(transaction.amount)
 
     return totals
   }, {})
@@ -636,7 +658,7 @@ const expensesByCategory = thisMonthTransactions
 const chartData = Object.entries(expensesByCategory).map(
   ([name, value]) => ({
     name,
-    value,
+    value: fromCents(value),
   })
 )
 
