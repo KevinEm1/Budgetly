@@ -117,6 +117,30 @@ function fromCents(cents: number): number {
   return cents / 100
 }
 
+function escapeCSVFormula(value: string): string {
+  if (/^[\s]*[=+\-@\t\r\n]/.test(value)) {
+    return `'${value}`
+  }
+
+  if (value.startsWith("'")) {
+    return `'${value}`
+  }
+
+  return value
+}
+
+function restoreCSVText(value: string): string {
+  if (value.startsWith("''")) {
+    return value.slice(1)
+  }
+
+  if (/^'[\s]*[=+\-@]/.test(value)) {
+    return value.slice(1)
+  }
+
+  return value
+}
+
 const startingTransactions: Transaction[] = [
   {
     id: 1,
@@ -352,10 +376,10 @@ function handleExportCSV() {
 )
 
 const rows = monthlyTransactions.map((transaction) => [
-  transaction.description,
+  escapeCSVFormula(transaction.description),
   transaction.amount,
   transaction.type,
-  transaction.category ?? 'Other',
+  escapeCSVFormula(transaction.category ?? 'Other'),
   transaction.date,
 ])
 
@@ -498,10 +522,10 @@ const importedTransactions: Transaction[] = validTransactions.map(
 
     return {
       id: Date.now() + index,
-      description: description.trim(),
+      description: restoreCSVText(description).trim(),
       amount: fromCents(Number(amount)),
       type: type as 'income' | 'expense',
-      category: normalizeCategory(category),
+      category: normalizeCategory(restoreCSVText(category)),
       date,
     }
   }
